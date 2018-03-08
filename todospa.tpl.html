@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <link href="static/todospa.css" rel="stylesheet" type="text/css">
-
     <!-- defer attribute delays execution of script until page finished parsing -->
     <!-- (element nodes must exist for event listeners to be attached) -->
     <!-- <script type="text/javascript" src="/static/todospa5.js" defer></script>
  -->
 </head>
-
 <body>
 <!--
     Below are templates for tasks and task edit forms.
     Note their style attribute: display:none
     This keeps the templates from being displayed by the browser.
     This device can be used to filter the task list locally (in the browser)
-        without accessing the server.
+    without accessing the server.
  -->
 <!-- template for tasks -->
 <div id="task-template" style="display: none">
@@ -58,15 +55,13 @@
         </ul>
         <!-- for each copy of this template, the form will receive a unique id
              of the shape "form-{formCount}" where formCount is a member of
-             the docElems object (see top of todospa.js)
+             the pageElements object (see top of todospa.js)
              The form attribute of the input elements and the text area
              in this <section> needs to be set to the same value.
         -->
         <form id="form-"></form>
     </section>
 </div>
-
-
 <div id="container">
     <header>
         <div id="todotitle">
@@ -78,13 +73,11 @@
             </div>
         </div>
     </header>
-
     <aside class="sidebar-left">
         Use the left sidebar to indicate
         which of the optional features in hw4 you implemented
         to make sure reviewers give you extra credit
     </aside>
-
     <div id="center">
         <article id="newlist">
             <!-- holds new tasks while being edited -->
@@ -94,34 +87,29 @@
             <!-- created after todo list is loaded by createTodoList() -->
         </article>
     </div>
-
     <aside class="sidebar-right">
         <div class="controls">
-
             <section class="control">
                 <input class="controlbtn" type="button" value="New task"/>
             </section>
-
             <section class="control">
-
                 <form id="filterform" action="" method="">
                     <fieldset>
                         <legend>Tasks</legend>
-                        <div class='option'><input type="radio" name="filter" value="all" checked/>all</div>
-                        <div class='option'><input type="radio" name="filter" value="done"/>done</div>
-                        <div class='option'><input type="radio" name="filter" value="tbd"/>tbd</div>
+                        <div class='option'><input type="radio" name="filter" id="checkAll" value="all" checked/>all
+                        </div>
+                        <div class='option'><input type="radio" name="filter" id="checkDone" value="done"/>done</div>
+                        <div class='option'><input type="radio" name="filter" id="checkTBD" value="tbd"/>tbd</div>
                     </fieldset>
                     <input class="controlbtn" type="button" value="Filter"/>
                 </form>
             </section>
         </div>
     </aside>
-
     <footer>
-        <div><p>some stuff here <br/><br/>and some more stufff</p></div>
+        <div><p>some stuff here <br/><br/>and some more stuff</p></div>
     </footer>
 </div> <!--  end container -->''
 <script type="text/javascript" src="/static/todospa.js"></script>
 </body>
-
 </html>

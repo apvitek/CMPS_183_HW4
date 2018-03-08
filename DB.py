@@ -2,7 +2,7 @@ import sqlite3
 
 
 class DaBa:
-    ''' Simple sqlite3 Abstraction '''
+    """ Simple sqlite3 Abstraction """
 
     def __init__(self, dbname):
         self._conn = sqlite3.connect(dbname + '.db')

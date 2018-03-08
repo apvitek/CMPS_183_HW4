@@ -1,4 +1,4 @@
-const initDocElems = () => {
+const initPageElements = () => {
     return {
         todoList: document.getElementById('todolist'),
         taskTemplate: document.getElementById('task-template').firstElementChild,
@@ -8,30 +8,51 @@ const initDocElems = () => {
     }
 };
 
-let docElems;
+let pageElements;
 
 const init = () => {
     // tasks load asynchronously with rest of init()
     loadTasks();
 
     // convenience object with references to key DOM objects and the form counter
-    docElems = initDocElems();
+    pageElements = initPageElements();
 
     // attach event handlers to controls in right sidebar
     // to controls
     document.querySelector('.controls')
         .addEventListener('click', (event) => {
-            if (event.target.closest('INPUT.controlbtn') &&
-                event.target.closest('INPUT.controlbtn').value === "New task") {
-                handleNewTask(event)
+            if (event.target.closest('INPUT.controlbtn')) {
+                if (event.target.closest('INPUT.controlbtn').value === "New task") {
+                    handleNewTask(event)
+
+                } else if (event.target.closest('INPUT.controlbtn').value === "Filter") {
+                    let taskFilter = "";
+
+                    if (document.getElementById("checkAll").checked) {
+                        taskFilter = "all";
+
+                    } else if (document.getElementById("checkDone").checked) {
+                        taskFilter = "done";
+
+                    } else {
+                        taskFilter = "tbd";
+                    }
+
+                    getTasks(taskFilter)
+                        .then(rsp => {
+                            return rsp.json()
+                        })
+                        .then(tasks => {
+                            pageElements.todoList.innerHTML = "";
+                            createTaskElements(tasks);
+                        })
+                }
             }
-            // Filter handling goes here ...
         });
-    //
+
     // to new tasks being edited
     document.querySelector('#newlist')
         .addEventListener('click', (event) => {
-
             // you can remove the diagnostic console.log and alert statements
             console.log("event:");
             console.log(event);
@@ -95,8 +116,8 @@ const loadTasks = () => {
             return rsp.json()
         })
         .then(tasks => {
-            console.log("resolving promise in loadTasks response:");
-            console.log(tasks);
+            // console.log("resolving promise in loadTasks response:");
+            // console.log(tasks);
             createTaskElements(tasks);
         })
 };
@@ -115,8 +136,8 @@ const getTasks = (filter) => {
 const putTask = (task) => {
     console.log("from putTask, task:");
     console.log(task);
-    return fetch('/task/new', {
 
+    return fetch('/task/new', {
         // represent JS object as a string
         body: JSON.stringify(task),
 
@@ -136,6 +157,7 @@ const putTask = (task) => {
 const postTask = (task) => {
     console.log("from postTask, task:");
     console.log(task);
+
     return postData('/task/update/', task)
 };
 
@@ -153,87 +175,88 @@ function postData(url, jsondata) {
 // functions for building and manipulating DOM
 
 const createTaskElements = (taskListData) => {
-    console.log("from createTaskElements: creating task elements");
+    // console.log("from createTaskElements: creating task elements");
     taskListData.forEach(createAndAppendTaskElement)
 };
 
 const createTaskElement = (task) => {
     // cloneNode(true) makes a deep clone (as opposed to shallow clone)
-    let taskel = docElems.taskTemplate.cloneNode(true);
-    updateTaskElement(task, taskel);
-    return taskel
+    let taskElement = pageElements.taskTemplate.cloneNode(true);
+    updateTaskElement(task, taskElement);
+
+    return taskElement
 };
 
-const updateTaskElement = (task, taskel) => {
-    setTaskId(taskel, task.taskid);
-    setTaskDescription(taskel, task.taskdescription);
-    setStatus(taskel, task.status);
+const updateTaskElement = (task, taskElement) => {
+    setTaskId(taskElement, task.taskid);
+    setTaskDescription(taskElement, task.taskdescription);
+    setStatus(taskElement, task.status);
 };
 
-const appendTaskElement = (taskel) => {
-    docElems.todoList.appendChild(taskel);
+const appendTaskElement = (taskElement) => {
+    pageElements.todoList.appendChild(taskElement);
 };
 
 // poor (wo)man's function composition
-const createAndAppendTaskElement = (taskel) => {
-    appendTaskElement(createTaskElement(taskel))
+const createAndAppendTaskElement = (taskElement) => {
+    appendTaskElement(createTaskElement(taskElement))
 };
 
-const setTaskId = (taskel, taskid) => {
-    let taskidEl = taskel.querySelector('.taskid');
+const setTaskId = (taskElement, taskid) => {
+    let taskidEl = taskElement.querySelector('.taskid');
     taskidEl.value = taskid;
 };
 
-const getTaskId = (taskel) => {
-    let taskidEl = taskel.querySelector('.taskid');
+const getTaskId = (taskElement) => {
+    let taskidEl = taskElement.querySelector('.taskid');
     return taskidEl.value
 };
 
-const setTaskDescription = (taskel, taskdescription) => {
-    let taskDescriptionEl = taskel.querySelector('.taskdescription');
+const setTaskDescription = (taskElement, taskdescription) => {
+    let taskDescriptionEl = taskElement.querySelector('.taskdescription');
     taskDescriptionEl.innerHTML = taskdescription;
 };
 
-const getTaskFormDescription = (taskel) => {
-    let taskDescriptionEl = taskel.querySelector('.taskdescription');
+const getTaskFormDescription = (taskElement) => {
+    let taskDescriptionEl = taskElement.querySelector('.taskdescription');
     return taskDescriptionEl.firstElementChild.value
 };
 
-const getTaskDescription = (taskel) => {
-    let taskDescriptionEl = taskel.querySelector('.taskdescription');
+const getTaskDescription = (taskElement) => {
+    let taskDescriptionEl = taskElement.querySelector('.taskdescription');
     return taskDescriptionEl.innerHTML
 };
 
-const setStatus = (taskel, status) => {
-    let taskStatusEl = taskel.querySelector('.status');
+const setStatus = (taskElement, status) => {
+    let taskStatusEl = taskElement.querySelector('.status');
+
     if (status === "done") {
         taskStatusEl.checked = true;
     }
 };
 
-const getStatus = (taskel) => {
-    let taskStatusEl = taskel.querySelector('.status');
+const getStatus = (taskElement) => {
+    let taskStatusEl = taskElement.querySelector('.status');
     return (taskStatusEl.checked ? "done" : "tbd")
 };
 
 const editNewTask = () => {
-    let taskFormEl = docElems.editTemplate.cloneNode(true);
+    let taskFormEl = pageElements.editTemplate.cloneNode(true);
     setFormId(taskFormEl);
-    docElems.newList.appendChild(taskFormEl);
+    pageElements.newList.appendChild(taskFormEl);
 };
 
-const setFormId = (taskFormEl) => {
-
+const setFormId = (taskFormElement) => {
     // create unique (within DOM) form id
-    docElems.formCount += 1;
-    let formid = "form-" + docElems.formCount;
+    pageElements.formCount += 1;
+    let formid = "form-" + pageElements.formCount;
 
     // set form id in form elements and form
-    taskFormEl.querySelector('.taskid').form = formid;
-    taskFormEl.querySelector('.taskdescription').firstElementChild.form = formid;
-    taskFormEl.querySelector('.status').form = formid;
-    taskFormEl.querySelector('.editbtn').form = formid;
-    taskFormEl.querySelector('FORM').id = formid;
+    taskFormElement.querySelector('.taskid').form = formid;
+    taskFormElement.querySelector('.taskdescription').firstElementChild.form = formid;
+    taskFormElement.querySelector('.status').form = formid;
+    taskFormElement.querySelector('.editbtn').form = formid;
+    taskFormElement.querySelector('FORM').id = formid;
 };
 
 // event handling functions
@@ -244,10 +267,12 @@ const handleNewTask = (event) => {
 
 const handleNewTaskSave = (event) => {
     let taskFormEl = event.target.closest('section.todoitem');
+
     let task = {
         taskdescription: getTaskFormDescription(taskFormEl),
         status: getStatus(taskFormEl)
     };
+
     putTask(task)
         .then(rsp => {
             console.log("before reading putTask response body");

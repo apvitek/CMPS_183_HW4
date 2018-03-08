@@ -47,9 +47,14 @@ def unpack_task():
 
 def view_to_db_status(status):
     """ converts view task status to db task status """
+    print("Status: {}".format(status))
+    print(type(status))
+
     if status == "tbd":
+        print("Return 0")
         return 0
     elif status == "done":
+        print("Return 1")
         return 1
     else:
         print("unknown task status: " + status)
@@ -173,11 +178,13 @@ def view_get_tasks(filter):
     if filter == "all":
         db_status = "all"
     else:
-        db_status = view_to_db_status(db_status)
+        db_status = view_to_db_status(filter)
+
     # get db_tasks
     rows = db_get_tasks_by_status(db_status)
     # convert rows to tasks in view model representation
     result = db_to_view_tasks(rows)
+
     return result
 
 
