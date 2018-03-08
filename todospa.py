@@ -47,15 +47,12 @@ def unpack_task():
 
 def view_to_db_status(status):
     """ converts view task status to db task status """
-    print("Status: {}".format(status))
-    print(type(status))
-
     if status == "tbd":
-        print("Return 0")
         return 0
+
     elif status == "done":
-        print("Return 1")
         return 1
+
     else:
         print("unknown task status: " + status)
         return "unknown"
@@ -132,8 +129,26 @@ def db_create_task(a_new_task):
     # connect to todo.db
     db = DaBa("todo")
     # construct query to retrieve rows from todo table
-    query = "INSERT INTO todo (task, status) Values('{td}', '{status}')"
+    query = "INSERT INTO todo (task, status) VALUES('{td}', '{status}')"
     query = query.format(td=a_new_task[0], status=(a_new_task[1]))
+    # execute query
+    print("Query: " + query)
+    db.que(query)
+    result = db.new_id()
+    # close db to release lock on database
+    db.close()
+
+    return result
+
+
+def db_delete_task(a_new_task):
+    """ stores new record in db
+        returns new record id
+    """
+    # connect to todo.db
+    db = DaBa("todo")
+    # construct query to retrieve rows from todo table
+    query = "DELETE FROM todo WHERE id='{task_id}'".format(task_id=a_new_task.id)
     # execute query
     print("Query: " + query)
     db.que(query)
@@ -207,6 +222,22 @@ def view_new_task(a_new_task):
     return result
 
 
+# TODO: finish
+def view_delete_task(a_new_task):
+    """ delete task:
+        store task in db
+        retrieve, convert to view, and return stored task
+    """
+    # convert task data from vm to db
+    db_new_task = view_to_db_new_task(a_new_task)
+    # delete record in db
+    taskid = db_delete_task(db_new_task)
+    # confirming record was correctly added
+    row = db_get_task(taskid)
+    result = {'success'} if row else {'error': "task insertion failed"}
+    return result
+
+
 def view_update_status(vm_task_data):
     """ updates status to vm_status for task with taskid """
     taskid = vm_task_data['taskid']
@@ -251,6 +282,14 @@ def new_task():
     return pack_task(task)
 
 
+@route('/task/delete', method='POST')
+def delete_task():
+    """ delete a task """
+    a_new_task = unpack_task()
+    task = view_delete_task(a_new_task)
+    return pack_task(task)
+
+
 @route('/status/update', method='POST')
 def update_status():
     """ update task status """
@@ -258,12 +297,12 @@ def update_status():
     task_data = unpack_task()
 
     # you may remove or comment out the print statements
-    print("from update_status: ")
-    print(task_data)
+    # print("from update_status: ")
+    # print(task_data)
 
     updated_task = view_update_status(task_data)
 
-    print(updated_task)
+    # print(updated_task)
 
     return pack_task(updated_task)
 

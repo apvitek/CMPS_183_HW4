@@ -16,13 +16,13 @@ class DaBa:
         self._cursor.close()
 
     def que(self, *query):
-        print("From que: ")
-        print(*query)
-        print("last rowid before query: ")
-        print(self._cursor.lastrowid)
+        # print("From que: ")
+        # print(*query)
+        # print("last rowid before query: ")
+        # print(self._cursor.lastrowid)
         self._cursor.execute(*query)
-        print("last rowid after query: ")
-        print(self._cursor.lastrowid)
+        # print("last rowid after query: ")
+        # print(self._cursor.lastrowid)
 
     def one(self):
         return self._cursor.fetchone()

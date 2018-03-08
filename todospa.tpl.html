@@ -34,13 +34,11 @@
     </section>
 </div>
 <!-- template for task edits -->
-<div id="edit-task-template" style="display: none">
+<div id="edit-task-template" style="display: none" onsubmit="checkSubmit(this)">
     <section class="todoitem todoForm">
         <input form="form-" class="taskid" value="" hidden/>
         <p class="taskdescription">
-                <textarea form="form-" name="taskdescription" placeholder="Please describe your task">
-
-                </textarea>
+            <textarea form="form-" name="taskdescription" placeholder="Please describe your task"></textarea>
         </p>
         <ul class="itembuttons">
             <li>
