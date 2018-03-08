@@ -47,7 +47,7 @@ footer {
 div#todotitle {
     display: flex;
     flex-direction: row;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -86,7 +86,7 @@ section.todoitem {
     /*  display: inline-block; */
     vertical-align: middle;
     background-color: lightgrey;
-    margin-left: 0px;
+    margin-left: 0;
     margin-top: 8px;
     margin-bottom: 8px;
     border-radius: 8px;
@@ -103,14 +103,6 @@ section.todoitem {
     /* vertical-align: middle; */
 }
 
-/* p.taskdescription {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    /* vertical-align: middle; */
-*
-
-/
 p.taskdescription > input {
     flex: 1;
     border-radius: 5px;
@@ -131,7 +123,7 @@ p.taskdescription > textarea {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 70%;
     font-weight: bold;
-    text-align: middle;
+    text-align: center;
     color: whitesmoke;
     background-color: whitesmoke;
     padding: 3px;
@@ -169,21 +161,21 @@ p.taskdescription > textarea {
     background-color: lightgrey;
     border-radius: 8px;
     padding: 10px;
-    margin-top: 0px;
+    margin-top: 0;
     margin-bottom: 8px;
 }
 
 .controlrow {
     display: flex;
     /* display: none; */
-    flex-direction: horizontal;
+    flex-direction: row;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 70%;
     max-width: 360px;
     background-color: lightgrey;
     border-radius: 8px;
     padding: 10px;
-    margin-top: 0px;
+    margin-top: 0;
     margin-bottom: 8px;
 }
 
@@ -206,8 +198,5 @@ fieldset {
 }
 
 .controlrow > .controlbtn {
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 7px;
-    margin-bottom: 7px;
+    margin: 7px 0;
 }
