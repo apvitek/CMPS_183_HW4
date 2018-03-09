@@ -128,7 +128,7 @@ const init = () => {
                     let parentElement = event.target.closest('SECTION.todoitem');
                     let taskID = parseInt(parentElement.children[0].value);
 
-                    handleTaskDelete(event);
+                    handleTaskDelete(event, taskID);
 
                 } else {
                     console.log("Cancel pressed");
@@ -404,23 +404,29 @@ const handleNewTaskCancel = (event) => {
     taskFormEl.remove()
 };
 
-const handleTaskDelete = (event) => {
+const handleTaskDelete = (event, taskID) => {
     let taskFormEl = event.target.closest('section.todoitem');
 
+    let description;
+
+    let taskDescriptionEl = taskFormEl.querySelector('.taskdescription');
+    description = taskDescriptionEl.innerHTML;
+
     let task = {
-        taskdescription: getTaskFormDescription(taskFormEl),
+        taskid: taskID,
+        taskdescription: description,
         status: getStatus(taskFormEl)
     };
 
     deleteTask(task)
         .then(rsp => {
-            // console.log("before reading putTask response body");
-            // console.log(rsp);
+            console.log("before reading putTask response body");
+            console.log(rsp);
             let payload = rsp.json();
-            // console.log("after reading putTask response body");
-            // console.log(rsp);
-            // console.log("payload:");
-            // console.log(payload);
+            console.log("after reading putTask response body");
+            console.log(rsp);
+            console.log("payload:");
+            console.log(payload);
             return payload
         })
         .then(task => {

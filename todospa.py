@@ -148,7 +148,7 @@ def db_delete_task(a_new_task):
     # connect to todo.db
     db = DaBa("todo")
     # construct query to retrieve rows from todo table
-    query = "DELETE FROM todo WHERE id='{task_id}'".format(task_id=a_new_task.id)
+    query = "DELETE FROM todo WHERE id='{task_id}'".format(task_id=a_new_task[0])
     # execute query
     print("Query: " + query)
     db.que(query)
@@ -229,12 +229,12 @@ def view_delete_task(a_new_task):
         retrieve, convert to view, and return stored task
     """
     # convert task data from vm to db
-    db_new_task = view_to_db_new_task(a_new_task)
+    db_new_task = view_to_db_task(a_new_task)
     # delete record in db
     taskid = db_delete_task(db_new_task)
     # confirming record was correctly added
     row = db_get_task(taskid)
-    result = {'success'} if row else {'error': "task insertion failed"}
+    result = {'success': 'the item was deleted'} if not row else {'error': 'task deletion failed'}
     return result
 
 
@@ -287,7 +287,7 @@ def delete_task():
     """ delete a task """
     a_new_task = unpack_task()
     task = view_delete_task(a_new_task)
-    return pack_task(task)
+    return task
 
 
 @route('/status/update', method='POST')
