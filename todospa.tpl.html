@@ -34,7 +34,7 @@
     </section>
 </div>
 <!-- template for task edits -->
-<div id="edit-task-template" style="display: none" onsubmit="checkSubmit(this)">
+<div id="edit-task-template" style="display: none">
     <section class="todoitem todoForm">
         <input form="form-" class="taskid" value="" hidden/>
         <p class="taskdescription">
@@ -45,7 +45,7 @@
                 <input form="form-" class="status" type="checkbox" name=status value="done"/>
             </li>
             <li>
-                <input form="form-" class="editbtn" type="submit" value="Save"/>
+                <input form="form-" class="editbtn"  type="button" value="Save"/>
             </li>
             <li>
                 <input class="deletebtn" type="button" value="Cancel"/>>
@@ -107,7 +107,7 @@
     <footer>
         <div><p>some stuff here <br/><br/>and some more stuff</p></div>
     </footer>
-</div> <!--  end container -->''
+</div> <!--  end container -->
 <script type="text/javascript" src="/static/todospa.js"></script>
 </body>
 </html>

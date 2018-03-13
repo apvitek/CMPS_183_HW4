@@ -61,11 +61,12 @@ const init = () => {
             // alert("Check browser console for console.log messages");
 
             if (event.target.closest('INPUT.editbtn')) {
-                handleNewTaskSave(event)
+                handleNewTaskSave(event);
+                // pageElements.newList.appendChild()
             }
 
             if (event.target.closest('INPUT.deletebtn')) {
-                handleNewTaskCancel(event)
+                handleNewTaskCancel(event);
             }
         });
 
@@ -75,8 +76,13 @@ const init = () => {
                 // console.log("task checked? " + event.target.checked);
                 status = (event.target.checked ? "done" : "tbd");
                 // console.log('status: ' + status);
+                let nextElement = event.target.closest('SECTION.todoitem').nextSibling;
 
                 let taskid = event.target.closest('SECTION.todoitem').children[0].value;
+
+                if (taskid === ""){
+                    taskid = parseInt(nextElement.children[0].value);
+                }
                 // console.log('taskid: ' + taskid);
 
                 postData('/status/update', {'taskid': taskid, 'status': status})
@@ -117,9 +123,33 @@ const init = () => {
                     const existingTask = localCache.filter(task => task["taskid"] === taskID)[0];
 
                     handleExistingTask(event, parentElement, existingTask);
+                     // handleTaskDelete(event, taskID);
 
                 } else {
+                    let toDoForm = event.target.closest('SECTION.todoitem');
+                    let parentElement = event.target.closest('SECTION.todoitem');
+                    let nextElement = event.target.closest('SECTION.todoitem').nextSibling;
+
+                    let text = event.target.closest('SECTION.todoitem').getElementsByTagName("textarea")[0].value;
+                    let taskID = parseInt(nextElement.children[0].value);
+                    localCache.filter(task => task["taskid"] === taskID)[0].taskdescription = text;
+                    localCache.filter(task => task["taskid"] === taskID)[0].status = (event.target.checked ? "done" : "tbd");
+                    nextElement.children[2].children[0].children[0].checked =
+                        event.target.closest('SECTION.todoitem').children[2].children[0].children[0].checked;
+
+                    let task = {
+                        taskid: taskID,
+                        taskdescription: text,
+                        status: getStatus(toDoForm)
+                    };
+                    const childIndex = findChildIndex(parentElement);
+                    let x = document.getElementById("todolist").children[childIndex].getElementsByClassName("taskdescription");
+                    x[0].innerHTML = text;
+                    document.getElementById("todolist").children[childIndex].style = "display: display";
+                    saveTask(task);
+                    toDoForm.remove();
                     console.log("Save pressed");
+
                 }
 
             } else if (event.target.closest('INPUT.deletebtn')) {
@@ -144,11 +174,14 @@ const init = () => {
         });
 };
 
-function checkSubmit(form) {
-    // const existingTasks = localCache.filter(task => task["taskid"] === existingID);
-    // return existingTasks.length <= 0;
-    console.log(form);
-    return false;
+function localCacheIndexOf(taskID){
+    for (var i = 0 ; i < localCache.length; i++){
+        if (localCache[i].taskid === parseInt(taskID)){
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 function findChildIndex(node) {
@@ -233,6 +266,27 @@ const postTask = (task) => {
     // console.log(task);
 
     return postData('/task/update/', task)
+};
+
+const saveTask = (task) => {
+    console.log(task);
+    console.log(JSON.stringify(task));
+
+     return fetch('/task/edit', {
+        // represent JS object as a string
+        body: JSON.stringify(task),
+
+        // set headers to let server know format of
+        // request and response bodies
+        headers: {
+            'Accept': 'application/json',
+            'Content-type': 'application/json'
+        },
+
+        // in the ReST spirit method should be PUT
+        // but bottle does not support HTTP verb PUT
+        method: 'POST'
+    })
 };
 
 function postData(url, jsondata) {
@@ -387,17 +441,19 @@ const handleNewTaskSave = (event) => {
             let payload = rsp.json();
             // console.log("after reading putTask response body");
             // console.log(rsp);
-            // console.log("payload:");
-            // console.log(payload);
+            console.log("payload:");
+            console.log(payload);
             return payload
         })
         .then(task => {
             // console.log("task resolving promise:");
             // console.log(task);
-            createTaskElement(task);
+            appendTaskElement(createTaskElement(task));
+            localCache.push(task);
             taskFormEl.remove();
         })
 };
+
 
 const handleNewTaskCancel = (event) => {
     let taskFormEl = event.target.closest('section.todoitem');
@@ -417,6 +473,8 @@ const handleTaskDelete = (event, taskID) => {
         taskdescription: description,
         status: getStatus(taskFormEl)
     };
+
+    localCache.splice(localCacheIndexOf(taskID),1);
 
     deleteTask(task)
         .then(rsp => {

@@ -39,7 +39,10 @@ def pack_task(task):
 
 
 def unpack_task():
-    return json.loads(body2str(request))
+    print(request)
+    bdy = body2str(request)
+    unpacked = json.loads(bdy)
+    return unpacked
 
 
 ''' conversion between db model and view model '''
@@ -158,6 +161,23 @@ def db_delete_task(a_new_task):
 
     return result
 
+def db_update_task(a_new_task):
+    """ stores new record in db
+        returns new record id
+    """
+    # connect to todo.db
+    db = DaBa("todo")
+    # construct query to retrieve rows from todo table
+    query = "UPDATE todo SET task = '{}', status = '{}' WHERE id = '{}'".format(a_new_task[1], a_new_task[2], a_new_task[0])
+    # execute query
+    print("Query: " + query)
+    db.que(query)
+    result = a_new_task[0]
+    # close db to release lock on database
+    db.close()
+
+    return result
+
 
 def db_get_task(id):
     """ retrieves record with id """
@@ -237,6 +257,20 @@ def view_delete_task(a_new_task):
     result = {'success': 'the item was deleted'} if not row else {'error': 'task deletion failed'}
     return result
 
+def view_update_task(a_new_task):
+    """ delete task:
+        store task in db
+        retrieve, convert to view, and return stored task
+    """
+    # convert task data from vm to db
+    db_new_task = view_to_db_task(a_new_task)
+    # delete record in db
+    taskid = db_update_task(db_new_task)
+    # confirming record was correctly added
+    row = db_get_task(taskid)
+    result = {'success': 'the item was deleted'} if not row else {'error': 'task deletion failed'}
+    return result
+
 
 def view_update_status(vm_task_data):
     """ updates status to vm_status for task with taskid """
@@ -272,6 +306,15 @@ def get_tasks(filter):
     """
     tasks = view_get_tasks(filter)
     return pack_tasks(tasks)
+
+@route('/task/edit', method='POST')
+def save_edit():
+    """ retrieve filtered tasks from db
+        and return as json sequence
+    """
+    a_new_task = unpack_task()
+    task = view_update_task(a_new_task)
+    return pack_task(task)
 
 
 @route('/task/new', method='POST')
