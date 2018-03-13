@@ -4,8 +4,6 @@ from bottle import route, run, debug, template, request, static_file
 
 from DB import DaBa  # a simple abstraction on sqlite3
 
-# import sqlite3
-
 ''' packing and unpacking fetch request and response data  '''
 
 
@@ -39,7 +37,6 @@ def pack_task(task):
 
 
 def unpack_task():
-    print(request)
     bdy = body2str(request)
     unpacked = json.loads(bdy)
     return unpacked
@@ -57,7 +54,6 @@ def view_to_db_status(status):
         return 1
 
     else:
-        print("unknown task status: " + status)
         return "unknown"
 
 
@@ -67,7 +63,6 @@ def db_to_view_status(status):
     elif status == 1:
         return "done"
     else:
-        print("unknown task status: " + str(status))
         return "unknown"
 
 
@@ -135,7 +130,6 @@ def db_create_task(a_new_task):
     query = "INSERT INTO todo (task, status) VALUES('{td}', '{status}')"
     query = query.format(td=a_new_task[0], status=(a_new_task[1]))
     # execute query
-    print("Query: " + query)
     db.que(query)
     result = db.new_id()
     # close db to release lock on database
@@ -153,13 +147,13 @@ def db_delete_task(a_new_task):
     # construct query to retrieve rows from todo table
     query = "DELETE FROM todo WHERE id='{task_id}'".format(task_id=a_new_task[0])
     # execute query
-    print("Query: " + query)
     db.que(query)
     result = db.new_id()
     # close db to release lock on database
     db.close()
 
     return result
+
 
 def db_update_task(a_new_task):
     """ stores new record in db
@@ -168,9 +162,9 @@ def db_update_task(a_new_task):
     # connect to todo.db
     db = DaBa("todo")
     # construct query to retrieve rows from todo table
-    query = "UPDATE todo SET task = '{}', status = '{}' WHERE id = '{}'".format(a_new_task[1], a_new_task[2], a_new_task[0])
+    query = "UPDATE todo SET task = '{}', status = '{}' WHERE id = '{}'".format(a_new_task[1], a_new_task[2],
+                                                                                a_new_task[0])
     # execute query
-    print("Query: " + query)
     db.que(query)
     result = a_new_task[0]
     # close db to release lock on database
@@ -183,8 +177,6 @@ def db_get_task(id):
     """ retrieves record with id """
     db = DaBa("todo")
     query = "SELECT * FROM todo WHERE id={taskid}".format(taskid=id)
-    print("in db_get_task, query: ")
-    print(query)
     db.que("SELECT * FROM todo WHERE id={taskid}".format(taskid=id))
     result = db.one()
     db.close()
@@ -242,7 +234,6 @@ def view_new_task(a_new_task):
     return result
 
 
-# TODO: finish
 def view_delete_task(a_new_task):
     """ delete task:
         store task in db
@@ -256,6 +247,7 @@ def view_delete_task(a_new_task):
     row = db_get_task(taskid)
     result = {'success': 'the item was deleted'} if not row else {'error': 'task deletion failed'}
     return result
+
 
 def view_update_task(a_new_task):
     """ delete task:
@@ -279,8 +271,10 @@ def view_update_status(vm_task_data):
     db_status = view_to_db_status(vm_status)
     db_id = taskid
     db_update_status(db_id, db_status)
+
     # confirming update
     task = view_get_task(taskid)
+
     if vm_status == task['status']:
         return {'taskid': taskid, 'status': vm_status}
     else:
@@ -306,6 +300,7 @@ def get_tasks(filter):
     """
     tasks = view_get_tasks(filter)
     return pack_tasks(tasks)
+
 
 @route('/task/edit', method='POST')
 def save_edit():
@@ -338,14 +333,7 @@ def update_status():
     """ update task status """
     # decode json message body into Python dictionary
     task_data = unpack_task()
-
-    # you may remove or comment out the print statements
-    # print("from update_status: ")
-    # print(task_data)
-
     updated_task = view_update_status(task_data)
-
-    # print(updated_task)
 
     return pack_task(updated_task)
 

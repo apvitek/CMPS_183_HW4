@@ -55,14 +55,8 @@ const init = () => {
     // to new tasks being edited
     document.querySelector('#newlist')
         .addEventListener('click', (event) => {
-            // you can remove the diagnostic console.log and alert statements
-            // console.log("event:");
-            // console.log(event);
-            // alert("Check browser console for console.log messages");
-
             if (event.target.closest('INPUT.editbtn')) {
                 handleNewTaskSave(event);
-                // pageElements.newList.appendChild()
             }
 
             if (event.target.closest('INPUT.deletebtn')) {
@@ -73,9 +67,7 @@ const init = () => {
     document.querySelector('#todolist')
         .addEventListener('click', (event) => {
             if (event.target.closest('INPUT.status')) {
-                // console.log("task checked? " + event.target.checked);
                 status = (event.target.checked ? "done" : "tbd");
-                // console.log('status: ' + status);
                 let nextElement = event.target.closest('SECTION.todoitem').nextSibling;
 
                 let taskid = event.target.closest('SECTION.todoitem').children[0].value;
@@ -83,26 +75,12 @@ const init = () => {
                 if (taskid === ""){
                     taskid = parseInt(nextElement.children[0].value);
                 }
-                // console.log('taskid: ' + taskid);
 
                 postData('/status/update', {'taskid': taskid, 'status': status})
                     .then(response => {
-                        // console.log("before reading body of postData response:");
-                        // console.log(response);
-
-                        let message = response.json();
-
-                        // console.log("after reading body of postData response:");
-                        // console.log(response);
-                        // console.log("message read from response body: ");
-                        // console.log(message);
-
-                        return message;
+                        return response.json();
                     })
                     .then(reply => {
-                        // console.log("reply that resolved promise:");
-                        // console.log(reply);
-
                         if (reply.error) {
                             alert("Server Error: " + reply.error)
                         }
@@ -116,14 +94,12 @@ const init = () => {
             // Save and Cancel (these on the form created click on Edit)
             if (event.target.closest('INPUT.editbtn')) {
                 if (event.target.value === "Edit") {
-                    console.log("Edit pressed");
                     let parentElement = event.target.closest('SECTION.todoitem');
 
                     let taskID = parseInt(parentElement.children[0].value);
                     const existingTask = localCache.filter(task => task["taskid"] === taskID)[0];
 
                     handleExistingTask(event, parentElement, existingTask);
-                     // handleTaskDelete(event, taskID);
 
                 } else {
                     let toDoForm = event.target.closest('SECTION.todoitem');
@@ -142,26 +118,25 @@ const init = () => {
                         taskdescription: text,
                         status: getStatus(toDoForm)
                     };
+
                     const childIndex = findChildIndex(parentElement);
+
                     let x = document.getElementById("todolist").children[childIndex].getElementsByClassName("taskdescription");
+
                     x[0].innerHTML = text;
                     document.getElementById("todolist").children[childIndex].style = "display: display";
                     saveTask(task);
                     toDoForm.remove();
-                    console.log("Save pressed");
-
                 }
 
             } else if (event.target.closest('INPUT.deletebtn')) {
                 if (event.target.value === "Delete") {
-                    console.log("Delete pressed");
                     let parentElement = event.target.closest('SECTION.todoitem');
                     let taskID = parseInt(parentElement.children[0].value);
 
                     handleTaskDelete(event, taskID);
 
                 } else {
-                    console.log("Cancel pressed");
                     let toDoForm = event.target.closest('SECTION.todoitem');
                     let parentElement = event.target.closest('SECTION.todoitem');
 
@@ -175,7 +150,7 @@ const init = () => {
 };
 
 function localCacheIndexOf(taskID){
-    for (var i = 0 ; i < localCache.length; i++){
+    for (let i = 0; i < localCache.length; i++) {
         if (localCache[i].taskid === parseInt(taskID)){
             return i;
         }
@@ -202,8 +177,6 @@ const loadTasks = () => {
             return rsp.json()
         })
         .then(tasks => {
-            // console.log("resolving promise in loadTasks response:");
-            // console.log(tasks);
             localCache = tasks;
             createTaskElements(tasks);
         })
@@ -221,9 +194,6 @@ const getTasks = (filter) => {
 };
 
 const putTask = (task) => {
-    // console.log("from putTask, task:");
-    // console.log(task);
-
     return fetch('/task/new', {
         // represent JS object as a string
         body: JSON.stringify(task),
@@ -242,8 +212,6 @@ const putTask = (task) => {
 };
 
 const deleteTask = (task) => {
-    console.log(JSON.stringify(task));
-
     return fetch('/task/delete', {
         // represent JS object as a string
         body: JSON.stringify(task),
@@ -262,16 +230,10 @@ const deleteTask = (task) => {
 };
 
 const postTask = (task) => {
-    // console.log("from postTask, task:");
-    // console.log(task);
-
     return postData('/task/update/', task)
 };
 
 const saveTask = (task) => {
-    console.log(task);
-    console.log(JSON.stringify(task));
-
      return fetch('/task/edit', {
         // represent JS object as a string
         body: JSON.stringify(task),
@@ -303,7 +265,6 @@ function postData(url, jsondata) {
 // functions for building and manipulating DOM
 
 const createTaskElements = (taskListData) => {
-    // console.log("from createTaskElements: creating task elements");
     taskListData.forEach(createAndAppendTaskElement)
 };
 
@@ -436,18 +397,9 @@ const handleNewTaskSave = (event) => {
 
     putTask(task)
         .then(rsp => {
-            // console.log("before reading putTask response body");
-            // console.log(rsp);
-            let payload = rsp.json();
-            // console.log("after reading putTask response body");
-            // console.log(rsp);
-            console.log("payload:");
-            console.log(payload);
-            return payload
+            return rsp.json()
         })
         .then(task => {
-            // console.log("task resolving promise:");
-            // console.log(task);
             appendTaskElement(createTaskElement(task));
             localCache.push(task);
             taskFormEl.remove();
@@ -478,19 +430,9 @@ const handleTaskDelete = (event, taskID) => {
 
     deleteTask(task)
         .then(rsp => {
-            console.log("before reading putTask response body");
-            console.log(rsp);
-            let payload = rsp.json();
-            console.log("after reading putTask response body");
-            console.log(rsp);
-            console.log("payload:");
-            console.log(payload);
-            return payload
+            return rsp.json()
         })
         .then(task => {
-            // console.log("task resolving promise:");
-            // console.log(task);
-            // createTaskElement(task);
             taskFormEl.remove();
         })
 };
